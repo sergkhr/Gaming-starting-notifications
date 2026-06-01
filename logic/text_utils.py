@@ -4,13 +4,6 @@ import re
 def normalize_text(text: str) -> str:
     """
     Normalize message text for further analysis.
-
-    Steps:
-    1. Lowercase.
-    2. Remove line breaks.
-    3. Remove duplicated spaces.
-    4. Remove punctuation.
-    5. Trim spaces.
     """
 
     if not text:
@@ -28,27 +21,24 @@ def normalize_text(text: str) -> str:
     return text.strip()
 
 
-def contains_any(text: str, patterns: list[str]) -> bool:
+def find_matches(
+    text: str,
+    patterns: list[str]
+) -> list[str]:
     """
-    Check if text contains any pattern.
+    Find patterns as separate words or phrases.
+    Prevent matching inside other words.
     """
+
+    matches = []
 
     for pattern in patterns:
-        if pattern in text:
-            return True
 
-    return False
+        escaped_pattern = re.escape(pattern)
 
+        regex = rf"\b{escaped_pattern}\b"
 
-def count_matches(text: str, patterns: list[str]) -> int:
-    """
-    Count matched patterns.
-    """
+        if re.search(regex, text):
+            matches.append(pattern)
 
-    count = 0
-
-    for pattern in patterns:
-        if pattern in text:
-            count += 1
-
-    return count
+    return matches

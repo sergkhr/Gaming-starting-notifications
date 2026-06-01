@@ -2,7 +2,10 @@ from models.score_result import ScoreResult
 
 from config.rules import RULES
 
-from logic.text_utils import normalize_text
+from logic.text_utils import (
+    normalize_text,
+    find_matches
+)
 
 from config.words import GAME_PATTERNS
 
@@ -21,12 +24,10 @@ def analyze_message(text: str) -> ScoreResult:
 
     for game_name, aliases in GAME_PATTERNS.items():
 
-        found_aliases = []
-
-        for alias in aliases:
-
-            if alias in normalized_text:
-                found_aliases.append(alias)
+        found_aliases = find_matches(
+            normalized_text,
+            aliases
+        )
 
         if found_aliases:
 
@@ -44,12 +45,10 @@ def analyze_message(text: str) -> ScoreResult:
 
     for rule in RULES:
 
-        matched_patterns = []
-
-        for pattern in rule.patterns:
-
-            if pattern in normalized_text:
-                matched_patterns.append(pattern)
+        matched_patterns = find_matches(
+            normalized_text,
+            rule.patterns
+        )
 
         if not matched_patterns:
             continue
