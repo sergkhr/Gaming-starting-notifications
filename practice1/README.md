@@ -16,7 +16,118 @@
 
 # Диаграммы
 Диаграммы выполнены для mermaid, код лежит в diagramN.md файлах. Github поддерживает отображение.
+## С4 Context
+```mermaid
+flowchart TB
 
+    User["👤 User"]
+
+    Telegram["📱 Telegram"]
+
+    subgraph SystemBoundary["Game Gathering Notification System"]
+        System["🎮 Notification System"]
+    end
+
+    Discord["💬 Discord"]
+
+    User -->|"Participates in chats"| Telegram
+
+    Telegram -->|"Provides chat messages"| System
+
+    System -->|"Sends notifications"| Discord
+
+    User -->|"Reads notifications"| Discord
+```
+## C4 Container
+```mermaid
+flowchart TB
+
+    User["👤 User"]
+
+    Telegram["📱 Telegram"]
+    Discord["💬 Discord"]
+
+    subgraph SystemBoundary["Game Gathering Notification System"]
+
+        TG["Telegram Connector
+        Docker Container"]
+
+        MQ["RabbitMQ
+        Message Broker"]
+
+        Core["Detection Engine
+        Docker Container"]
+
+        DS["Discord Connector
+        Docker Container"]
+
+        DB[("SQLite")]
+
+        TG -->|"Publishes messages"| MQ
+
+        MQ -->|"Consumes messages"| Core
+
+        Core -->|"Stores state"| DB
+
+        Core -->|"Notification events"| MQ
+
+        MQ -->|"Consumes notifications"| DS
+
+    end
+
+    User -->|"Participates in chats"| Telegram
+
+    Telegram -->|"Chat messages"| TG
+
+    DS -->|"Discord notifications"| Discord
+
+    Discord -->|"Displays notifications"| User
+```
+## C4 Component (Detection engine)
+```mermaid
+flowchart TB
+
+    MQ["RabbitMQ Consumer"]
+
+    TextUtils["Text Utils
+    Normalization
+    Preprocessing"]
+
+    Scorer["Scorer
+    Rule Matching
+    Score Calculation"]
+
+    Detector["Detector
+    Decision Engine"]
+
+    SessionTracker["Session Tracker
+    Active Gathering State"]
+
+    NotificationRules["Notification Rules
+    Notification Policy"]
+
+    Repository["Repository"]
+
+    DB[("SQLite")]
+
+    OutQueue["RabbitMQ Publisher"]
+
+    MQ --> TextUtils
+
+    TextUtils --> Scorer
+
+    Scorer --> Detector
+
+    Detector --> SessionTracker
+
+    SessionTracker --> NotificationRules
+
+    NotificationRules --> OutQueue
+
+    SessionTracker --> Repository
+
+    Repository --> DB
+```
 # Сводная таблица
 ## Анализ результатов генерации ИИ
 
