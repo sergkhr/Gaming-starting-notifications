@@ -1,0 +1,12 @@
+services:
+
+  notifier:
+
+    build: .
+
+    container_name: game-notifier
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
