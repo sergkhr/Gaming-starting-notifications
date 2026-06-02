@@ -1,29 +1,22 @@
-from config.notifier_rules import NOTIFICATION_RULES
+from models.game_session import GameSession
+
+from config.settings import (
+    SESSION_NEW_NOTIFICATION_STEP,
+    SESSION_MAX_SCORE,
+)
 
 
-def determine_action(score: int) -> str:
-    """
-    Determine action for message based on score.
+def determine_action(session: GameSession) -> str:
 
-    Returns:
-        ignore
-        watch
-        notify
-    """
-
-    matched_rules = []
-
-    for rule in NOTIFICATION_RULES:
-
-        if score >= rule.min_score:
-            matched_rules.append(rule)
-
-    if not matched_rules:
+    if session.total_score >= SESSION_MAX_SCORE:
         return "ignore"
 
-    best_rule = max(
-        matched_rules,
-        key=lambda rule: rule.min_score
+    score_delta = (
+        session.total_score
+        - session.last_notification_sent_at_score
     )
 
-    return best_rule.action
+    if score_delta >= SESSION_NEW_NOTIFICATION_STEP:
+        return "notify"
+
+    return "ignore"

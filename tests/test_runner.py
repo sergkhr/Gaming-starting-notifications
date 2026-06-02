@@ -53,6 +53,8 @@ def run_score_tests():
 def run_action_tests():
 
     print("\n=== ACTION TESTS ===")
+    
+    print("this will break because determine_action is changed")
 
     for test_case in ACTION_TEST_CASES:
 

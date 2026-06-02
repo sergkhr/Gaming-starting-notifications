@@ -1,5 +1,7 @@
 import argparse
 
+from workers.core_worker import start_core_worker
+
 from tests.test_runner import (
     run_all_tests,
     run_score_tests,
@@ -81,7 +83,7 @@ def main():
     # Normal mode
     #
 
-    print("Notifier (nothing so far) started")
+    start_core_worker()
 
 
 if __name__ == "__main__":

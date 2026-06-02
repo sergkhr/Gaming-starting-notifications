@@ -7,3 +7,28 @@ SESSION_TIMEOUT_MINUTES = 30
 SESSION_NEW_NOTIFICATION_STEP = 10
 
 SESSION_MAX_SCORE = 50
+
+
+import os
+
+RABBITMQ_HOST = "rabbitmq"
+RABBITMQ_PORT = 5672
+
+RABBITMQ_USER = os.getenv(
+    "RABBITMQ_DEFAULT_USER",
+    "admin"
+)
+
+RABBITMQ_PASSWORD = os.getenv(
+    "RABBITMQ_DEFAULT_PASS",
+    "admin"
+)
+
+RABBITMQ_TELEGRAM_MESSAGES_QUEUE = "telegram.messages"
+RABBITMQ_DISCORD_NOTIFICATIONS_QUEUE = "discord.notifications"
+
+
+DISCORD_WEBHOOK_URL = os.getenv(
+    "DISCORD_WEBHOOK_URL",
+    ""
+)

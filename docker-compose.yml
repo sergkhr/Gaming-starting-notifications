@@ -9,4 +9,51 @@ services:
     env_file:
       - .env
 
-    # restart: unless-stopped
+    command: python main.py
+
+    restart: unless-stopped
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+  discord-adapter:
+
+    build: .
+
+    container_name: game-notifier-discord-adapter
+
+    env_file:
+      - .env
+
+    command: python -m adapters.discord_adapter
+
+    restart: unless-stopped
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+  rabbitmq:
+
+    image: rabbitmq:3-management
+
+    container_name: game-notifier-rabbitmq
+
+    restart: unless-stopped
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
