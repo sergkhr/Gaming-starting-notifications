@@ -36,6 +36,27 @@ services:
         condition: service_healthy
 
 
+  telegram-adapter:
+
+    build: .
+
+    container_name: game-notifier-telegram-adapter
+
+    env_file:
+      - .env
+
+    command: python -m adapters.telegram_adapter
+
+    restart: unless-stopped
+
+    volumes:
+      - ./data/telegram:/app/data/telegram
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
   rabbitmq:
 
     image: rabbitmq:3-management

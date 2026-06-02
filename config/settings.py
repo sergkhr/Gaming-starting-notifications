@@ -32,3 +32,26 @@ DISCORD_WEBHOOK_URL = os.getenv(
     "DISCORD_WEBHOOK_URL",
     ""
 )
+
+
+TG_API_ID = int(
+    os.getenv(
+        "TG_API_ID",
+        "0"
+    )
+)
+
+TG_API_HASH = os.getenv(
+    "TG_API_HASH",
+    ""
+)
+
+TG_SESSION_NAME = os.getenv(
+    "TG_SESSION_NAME",
+    "telegram_session"
+)
+
+TG_TARGET_CHAT_ID = os.getenv(
+    "TG_TARGET_CHAT_ID",
+    ""
+)

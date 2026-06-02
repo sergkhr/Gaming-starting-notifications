@@ -1,4 +1,13 @@
+import time
+
 import pika
+
+from pika.exceptions import (
+    AMQPConnectionError,
+    ChannelClosedByBroker,
+    ConnectionClosed,
+    StreamLostError,
+)
 
 from config.settings import (
     RABBITMQ_HOST,
@@ -18,6 +27,8 @@ class RabbitMQClient:
 
     def connect(self):
 
+        self.close()
+
         credentials = pika.PlainCredentials(
             RABBITMQ_USER,
             RABBITMQ_PASSWORD
@@ -27,6 +38,8 @@ class RabbitMQClient:
             host=RABBITMQ_HOST,
             port=RABBITMQ_PORT,
             credentials=credentials,
+            heartbeat=30,
+            blocked_connection_timeout=30,
         )
 
         self.connection = pika.BlockingConnection(
@@ -35,13 +48,21 @@ class RabbitMQClient:
 
         self.channel = self.connection.channel()
 
+    def ensure_connection(self):
+
+        if self.connection is None or self.connection.is_closed:
+            self.connect()
+            return
+
+        if self.channel is None or self.channel.is_closed:
+            self.channel = self.connection.channel()
+
     def declare_queue(
         self,
         queue_name: str
     ):
 
-        if self.channel is None:
-            self.connect()
+        self.ensure_connection()
 
         self.channel.queue_declare(
             queue=queue_name,
@@ -54,8 +75,39 @@ class RabbitMQClient:
         message: str
     ):
 
-        if self.channel is None:
+        try:
+
+            self._publish_once(
+                queue_name=queue_name,
+                message=message,
+            )
+
+        except (
+            AMQPConnectionError,
+            ConnectionClosed,
+            StreamLostError,
+            ChannelClosedByBroker,
+            ConnectionResetError,
+        ):
+
+            print(
+                "RabbitMQ connection lost while publishing. Reconnecting..."
+            )
+
             self.connect()
+
+            self._publish_once(
+                queue_name=queue_name,
+                message=message,
+            )
+
+    def _publish_once(
+        self,
+        queue_name: str,
+        message: str
+    ):
+
+        self.ensure_connection()
 
         self.declare_queue(
             queue_name
@@ -76,8 +128,7 @@ class RabbitMQClient:
         callback
     ):
 
-        if self.channel is None:
-            self.connect()
+        self.ensure_connection()
 
         self.declare_queue(
             queue_name
@@ -93,6 +144,7 @@ class RabbitMQClient:
             message = body.decode("utf-8")
 
             try:
+
                 callback(message)
 
                 channel.basic_ack(
@@ -123,9 +175,54 @@ class RabbitMQClient:
             f"Consuming queue: {queue_name}"
         )
 
-        self.channel.start_consuming()
+        while True:
+
+            try:
+
+                self.channel.start_consuming()
+
+            except (
+                AMQPConnectionError,
+                ConnectionClosed,
+                StreamLostError,
+                ConnectionResetError,
+            ) as error:
+
+                print(
+                    f"RabbitMQ consuming connection lost: {error}"
+                )
+
+                print(
+                    "Reconnecting to RabbitMQ..."
+                )
+
+                time.sleep(5)
+
+                self.connect()
+
+                self.declare_queue(
+                    queue_name
+                )
+
+                self.channel.basic_qos(
+                    prefetch_count=1
+                )
+
+                self.channel.basic_consume(
+                    queue=queue_name,
+                    on_message_callback=wrapped_callback
+                )
 
     def close(self):
 
-        if self.connection is not None:
-            self.connection.close()
+        try:
+
+            if self.connection is not None and self.connection.is_open:
+                self.connection.close()
+
+        except Exception:
+            pass
+
+        self.connection = None
+
+        self.channel = None
