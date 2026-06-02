@@ -144,56 +144,89 @@ ACTION_TEST_CASES = [
 
 
 SESSION_TEST_CASES = [
-
+    # gpt made tests, he decided that inviter is not participant - will check later
     {
         "name": "simple_dota_gathering",
-
         "messages": [
-            "го дота",
-            "я",
-            "через 20 минут буду"
-        ]
+            {"text": "го дота", "user_id": "u1", "user_name": "User 1"},
+            {"text": "я", "user_id": "u2", "user_name": "User 2"},
+            {"text": "через 20 минут буду", "user_id": "u3", "user_name": "User 3"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 3,
+        "expected_participants": {"u2", "u3"},
+        "expected_declined_users": set(),
     },
-
     {
         "name": "minecraft_gathering",
-
         "messages": [
-            "когда в майн?",
-            "я бы зашел",
-            "можно вечером"
-        ]
+            {"text": "когда в майн?", "user_id": "u1", "user_name": "User 1"},
+            {"text": "я бы зашел", "user_id": "u2", "user_name": "User 2"},
+            {"text": "можно вечером", "user_id": "u3", "user_name": "User 3"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 3,
+        "expected_participants": {"u2", "u3"},
+        "expected_declined_users": set(),
     },
-
     {
         "name": "lethal_gathering",
-
         "messages": [
-            "че гоу в леталку",
-            "можно",
-            "буду через 10 минут",
-            "я тоже"
-        ]
+            {"text": "че гоу в леталку", "user_id": "u1", "user_name": "User 1"},
+            {"text": "можно", "user_id": "u2", "user_name": "User 2"},
+            {"text": "буду через 10 минут", "user_id": "u3", "user_name": "User 3"},
+            {"text": "я тоже", "user_id": "u4", "user_name": "User 4"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 4,
+        "expected_participants": {"u2", "u3", "u4"},
+        "expected_declined_users": set(),
     },
-
     {
         "name": "failed_gathering",
-
         "messages": [
-            "го дота",
-            "не могу",
-            "я пас"
-        ]
+            {"text": "го дота", "user_id": "u1", "user_name": "User 1"},
+            {"text": "не могу", "user_id": "u2", "user_name": "User 2"},
+            {"text": "я пас", "user_id": "u3", "user_name": "User 3"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 3,
+        "expected_participants": set(),
+        "expected_declined_users": {"u2", "u3"},
     },
-
     {
         "name": "discord_gathering",
-
         "messages": [
-            "го факторио",
-            "создавай лобби",
-            "го в дс",
-            "буду"
-        ]
-    }
+            {"text": "го факторио", "user_id": "u1", "user_name": "User 1"},
+            {"text": "создавай лобби", "user_id": "u2", "user_name": "User 2"},
+            {"text": "го в дс", "user_id": "u3", "user_name": "User 3"},
+            {"text": "буду", "user_id": "u4", "user_name": "User 4"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 4,
+        "expected_participants": {"u4"},
+        "expected_declined_users": set(),
+    },
+    {
+        "name": "vibe_only_should_not_attach (wdym gpt?)",
+        "messages": [
+            {"text": "го дота", "user_id": "u1", "user_name": "User 1"},
+            {"text": "жестко", "user_id": "u2", "user_name": "User 2"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 1,
+        "expected_participants": set(),
+        "expected_declined_users": set(),
+    },
+    {
+        "name": "vibe_answer",
+        "messages": [
+            {"text": "го дота", "user_id": "u1", "user_name": "User 1"},
+            {"text": "вайб", "user_id": "u2", "user_name": "User 2"},
+        ],
+        "expected_sessions": 1,
+        "expected_messages": 2,
+        "expected_participants": {"u2"},
+        "expected_declined_users": set(),
+    },
 ]

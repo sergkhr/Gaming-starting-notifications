@@ -1,4 +1,4 @@
-IMMEDIATE_NOTIFICATION_SCORE = 10
+IMMEDIATE_NOTIFICATION_SCORE = 10 #that's basically just notify score sry for confusion
 
 WATCH_SESSION_SCORE = 5
 
